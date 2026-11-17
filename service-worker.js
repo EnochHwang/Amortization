@@ -1,4 +1,4 @@
-const CACHE_NAME = "Amortization-v1";
+const CACHE_NAME = "Amortization-v1.3";
 
 const CACHE_FILES = [
   "./",
