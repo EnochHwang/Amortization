@@ -10,6 +10,7 @@ const ids = ['price', 'down', 'rate', 'years', 'escrow', 'start'];
 const adjustments = new Map();
 let currentMonth = null;
 let currentSchedule = null;
+let newPaymentEdited = false;
 
 // Local persistence — IndexedDB
 const DB_NAME = 'Amortization';
@@ -328,14 +329,25 @@ function openEditor(month) {
 
   $('editorTitle').textContent = `What If · Month ${month}`;
   $('editorDescription').textContent = `Changes apply after the regular payment for month ${month}. A new monthly payment starts in month ${month + 1}.`;
-  $('extraPayment').value = change.extra ?? '';
-  $('newPayment').value = change.newPayment ?? '';
+  $('extraPayment').value = change.extra > 0 ? change.extra : '';
+  $('newPayment').value = change.newPayment != null ? Math.round(change.newPayment) : '';
   $('newPaymentLabel').textContent = `New monthly payment${escrow > 0 ? ' (including escrow)' : ''}`;
   $('minimumPayment').textContent = `Minimum allowed: ${money(minimumPayment)}${escrow > 0 ? ' (including escrow)' : ''}`;  
   $('editorError').hidden = true;
   $('deleteAdjustment').hidden = !adjustments.has(month);
+  newPaymentEdited = false;
   $('editor').showModal();
+
+  if (change.newPayment != null) {
+    $('newPayment').focus();
+  } else {
+    $('extraPayment').focus();
+  }
 }
+
+$('newPayment').addEventListener('input', () => {
+  newPaymentEdited = true;
+});
 
 function closeEditor() {
   $('editor').close();
@@ -348,10 +360,41 @@ $('adjustmentForm').addEventListener('submit', event => {
   const extraText = $('extraPayment').value.trim();
   const paymentText = $('newPayment').value.trim();
   const extra = extraText ? number(extraText) : 0;
-  const newPayment = paymentText ? number(paymentText) : null;
   const { principal, rate, months, escrow } = loanInputs();
   const baseline = calculateSchedule(principal, rate, months);
   const currentRow = currentSchedule?.rows.find(row => row.m === currentMonth);
+
+  // Determine the monthly payment in effect at the selected month.
+  let currentPayment = baseline.payment + escrow;
+
+  for (const row of currentSchedule?.rows || []) {
+    if (row.m >= currentMonth) break;
+
+    if (row.change?.newPayment != null) {
+      currentPayment = row.change.newPayment;
+    }
+  }
+
+  // Interpret +100 as an increase of $100.
+  let newPayment = paymentText ? number(paymentText) : null;
+
+  if (paymentText.startsWith('+')) {
+    const increaseText = paymentText.slice(1).trim();
+    const increase = number(increaseText);
+
+    newPayment = increaseText && Number.isFinite(increase) && increase > 0
+      ? currentPayment + increase
+      : NaN;
+  }
+  
+  // Preserve the original full-precision payment if the user
+  // has not edited the New monthly payment field.
+  const savedPayment = adjustments.get(currentMonth)?.newPayment;
+
+  if (!newPaymentEdited && savedPayment != null) {
+    newPayment = savedPayment;
+  }
+  
   let error = '';
   if (!Number.isFinite(extra) || extra < 0) error = 'Extra principal payment must be zero or greater.';
   else if (newPayment != null && (!Number.isFinite(newPayment) || newPayment <= escrow)) error = 'New monthly payment must exceed the monthly escrow.';
