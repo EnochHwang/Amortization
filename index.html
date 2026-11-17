@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+  <meta content="#1769aa" name="theme-color"/>
+  <meta content="Mortgage amortization and what-if planning" name="description"/>
+  <link href="manifest.json" rel="manifest"/>
+  <link href="icons/icon512.jpg" rel="icon"/>
+  <link href="icons/icon512.jpg" rel="apple-touch-icon"/>
+  <link href="styles.css?v=grid2" rel="stylesheet"/>
+  <title>
+   Amortization
+  </title>
+ </head>
+ <body>
+  <main class="shell">
+   <header class="top">
+    <img alt="Amortization icon" src="icons/icon512.jpg"/>
+    <div>
+     <h1>
+      Amortization
+      <span>
+       – What If
+      </span>
+     </h1>
+     <p>
+      Explore ways to save on interest and pay off loan faster
+     </p>
+    </div>
+   </header>
+   <section class="panels">
+    <div class="panel">
+     <h2>
+      Loan Information
+     </h2>
+     <div class="fields">
+      <label for="price">
+       House price
+      </label>
+      <input id="price" inputmode="decimal" value="$500,000" placeholder="$0"/>
+      <label for="down">
+       Down payment
+      </label>
+      <input id="down" inputmode="decimal" title="Enter a dollar amount or a percentage, e.g. 10%" value="$75,000" placeholder="amount or %"/>
+      <label>
+       Loan amount
+      </label>
+      <output id="loan">
+       —
+      </output>
+      <label for="rate">
+       Annual interest rate (%)
+      </label>
+      <input id="rate" inputmode="decimal" value="7.2" placeholder="0"/>
+      <label for="years">
+       Loan term (years)
+      </label>
+      <input id="years" inputmode="numeric" value="30" placeholder="0"/>
+     </div>
+     <!--
+     <div class="foot">
+      <button id="reset" type="button">
+       Reset
+      </button>
+     </div>
+     -->
+     
+    </div>
+    <div class="panel">
+     <h2>
+      Payment Information
+     </h2>
+     <div class="fields">
+      <label>
+       Monthly principal &amp; interest
+      </label>
+      <output id="pi">
+       —
+      </output>
+      <label for="escrow">
+       Monthly escrow (optional)
+      </label>
+      <input id="escrow" inputmode="decimal" placeholder="$0" value=""/>
+      <label>
+       Total monthly payment
+      </label>
+      <output class="emphasis" id="total">—</output>
+      <label for="start">
+       First payment month (optional)
+      </label>
+      <input id="start" type="month"/>
+     </div>
+     <p class="note">
+      Escrow is included in actual payments and cumulative Total Paid, but does not reduce principal or interest.
+     </p>
+    </div>
+   </section>
+
+   <section>
+       <div class="error" hidden="" id="error" role="alert">
+   </section>
+   
+   <section aria-label="Original loan summary" class="summary">
+    <div class="metric">
+     <span>Loan amount</span>
+     <strong id="originalLoan">—</strong>
+    </div>
+    <span aria-hidden="true" class="math-sign">+</span>
+    <div class="metric">
+     <span>Original total interest</span>
+     <strong id="originalInterest">—</strong>
+    </div>
+    <span aria-hidden="true" class="math-sign escrow-sign" hidden>+</span>
+    <div class="metric escrow-metric" hidden><span>Original total escrow</span><strong id="originalEscrow">—</strong></div>
+    <span aria-hidden="true" class="math-sign">=</span>
+    <div class="metric">
+     <span>Original total loan payment</span>
+     <strong id="originalPayments">—</strong>
+    </div>
+    <div class="metric payoff-metric">
+     <span>Original scheduled payoff</span>
+     <strong id="originalPayoff">—</strong>
+    </div>
+   </section>
+   <section aria-label="Adjusted loan summary" class="summary adjusted-summary">
+    <div class="metric">
+     <span>Loan amount</span>
+     <strong id="summaryLoan">—</strong>
+    </div>
+    <span aria-hidden="true" class="math-sign">+</span>
+    <div class="metric">
+     <span>Revised total interest</span>
+     <strong id="interest">—</strong>
+    </div>
+    <span aria-hidden="true" class="math-sign escrow-sign" hidden>+</span>
+    <div class="metric escrow-metric" hidden><span>Revised total escrow</span><strong id="currentEscrow">—</strong></div>
+    <span aria-hidden="true" class="math-sign">=</span>
+    <div class="metric">
+     <span>Revised total loan payment</span>
+     <strong id="payments">—</strong>
+    </div>
+    <div class="metric payoff-metric">
+     <span>Revised scheduled payoff</span>
+     <strong id="payoff">—</strong>
+    </div>
+   </section>
+   <section aria-label="Savings" class="savings" id="savings">
+    <div class="saving-metric">
+     <span>Interest reduction</span>
+     <strong id="interestSaved">—</strong>
+    </div>
+    <div class="saving-metric escrow-saving" hidden>
+     <span>Escrow reduction</span>
+     <strong id="escrowSaved">—</strong>
+    </div>
+    <div class="saving-metric">
+     <span>Payment reduction</span>
+     <strong id="paymentSaved">—</strong>
+    </div>
+    <div class="saving-metric">
+     <span>Time reduction</span>
+     <strong id="timeSaved">—</strong>
+    </div>
+   </section>
+   <section class="schedule">
+    <div class="section-head">
+     <div>
+      <h2>
+       Detail Payment Information
+      </h2>
+      <p id="scheduleHint">
+       Monthly amortization schedule
+      </p>
+     </div>
+    </div>
+
+    
+    <div class="table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>
+         Month
+        </th>
+        <th>
+         Principal
+        </th>
+        <th>
+         Interest
+        </th>
+        <th class="escrow-column" hidden>Escrow</th>
+        <th>Monthly Payment</th>
+        <th>
+         Total Principal
+        </th>
+        <th>
+         Total Interest
+        </th>
+        <th>
+         Total Paid
+        </th>
+        <th>
+         Principal Balance
+        </th>
+       </tr>
+      </thead>
+      <tbody id="rows">
+      </tbody>
+     </table>
+    </div>
+   </section>
+
+   <footer>
+    Created and Copyrighted &copy; by Enoch Hwang 2010
+   </footer>
+   
+   
+  </main>
+  <dialog id="editor" aria-labelledby="editorTitle">
+   <form id="adjustmentForm" class="adjustment-form">
+    <h2 id="editorTitle">What If adjustment</h2>
+    <p id="editorDescription"></p>
+    <label for="extraPayment">Extra principal payment after this month</label>
+    <input id="extraPayment" inputmode="decimal" placeholder="$0" autocomplete="off"/>
+    <label for="newPayment" id="newPaymentLabel">New monthly payment</label>
+    <input id="newPayment" inputmode="decimal" placeholder="$0" autocomplete="off"/>
+    <p id="minimumPayment" style="font-size:12px; color:#607287; margin:-6px 0 0;"></p>
+    <p class="editor-error" id="editorError" role="alert" hidden></p>
+    <div class="editor-actions">
+     <button id="deleteAdjustment" type="button" class="danger" hidden>Delete adjustment</button>
+     <button id="cancelAdjustment" type="button">Cancel</button>
+     <button type="submit" class="primary">Save</button>
+    </div>
+   </form>
+  </dialog>
+
+  <div id="welcomeOverlay" class="welcome-overlay" hidden>
+    <div class="welcome-content">
+      <div class="welcome-header">
+        <img src="icons/icon512.jpg" alt="Amortization icon">
+
+        <div>
+          <h2>Amortization <span>– What If</span></h2>
+          <p class="welcome-subtitle">Explore ways to save on interest and pay off loan faster</p>
+        </div>
+      </div>
+      <p>1) Enter your loan information.</p>
+      <p>2) Select a month row to enter an extra payment or increase your monthly payment. Repeat this for as many months as you'd like.</p>
+      <p>3) Explore how even a small increase in your payments can dramatically reduce your loan interest and payoff time.</p>
+      <p><b><center>The more you pay, the more you save!</center></b></p>
+      <div class="welcome-footer">
+        <span class="welcome-credit">Created and Copyrighted &copy; Enoch Hwang 2010</span>
+        <button type="button" id="welcomeDismiss">Got it</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="app.js"></script>
+ </body>
+</html>
+
