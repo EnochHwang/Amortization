@@ -179,8 +179,8 @@ button:hover {
 }
 
 .metric {
-  background:#eaf4fd;
-  border:1px solid #d7e8f6;
+  background:#fce8ef;
+  border:1px solid #f3cbd9;
   border-radius:13px;
   padding:19px 22px;
   display:flex;
@@ -360,7 +360,15 @@ tbody tr:hover {
 .summary .metric strong { font-size: clamp(16px, 1.65vw, 22px); }
 .summary .metric span { font-size: 12px; }
 .summary .math-sign { font-size: 23px; }
+.summary:not(.adjusted-summary) .metric span,
+.summary:not(.adjusted-summary) .metric strong {
+  color: #a83255;
+}
 .adjusted-summary { margin-top: 6px; }
+.adjusted-summary .metric {
+  background: #eaf4fd;
+  border-color: #d7e8f6;
+}
 .savings {
   grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr) 22px minmax(0, 1fr) minmax(0, 1fr);
   gap: 7px;
@@ -676,10 +684,15 @@ footer {
     gap: 2px;
     padding: 14px 15px;
     margin: 6px 0 0;
-    background: #eaf4fd;
-    border: 1px solid #d7e8f6;
+    background: #fce8ef;
+    border: 1px solid #f3cbd9;
     border-radius: 19px;
     box-shadow: 0 3px 0 #d4dce5;
+  }
+  .adjusted-summary,
+  .adjusted-summary.with-escrow {
+    background: #eaf4fd;
+    border-color: #d7e8f6;
   }
 
   .summary .math-sign {
@@ -702,7 +715,7 @@ footer {
 
   .summary .metric span,
   .summary .metric strong {
-    color: #154d79;
+    color: #506e87;
     font-size: 13px;
     font-weight: 400;
     line-height: 1.35;
@@ -710,7 +723,17 @@ footer {
     white-space: normal;
     overflow-wrap: normal;
   }
+  .summary .metric strong {
+    font-weight: 700;
+  }
 
+  .adjusted-summary .metric strong {
+    color: #154d79;
+  }
+  .summary:not(.adjusted-summary) .metric span,
+  .summary:not(.adjusted-summary) .metric strong {
+    color: #a83255;
+  }
   .summary .metric span::after {
     content: ":";
   }
@@ -768,7 +791,9 @@ footer {
     text-align: left;
     white-space: normal;
   }
-
+  .savings .saving-metric strong {
+    font-weight: 700;
+  }
   .savings .saving-metric span::after {
     content: ":";
   }
